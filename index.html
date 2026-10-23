@@ -886,4 +886,302 @@
     });
 
     // 切换英语双轨模式 (Work vs Life)
-    function switchEnTrack(track
+    function switchEnTrack(track) {
+      currentEnTrack = track;
+      document.getElementById('btn-track-work').className = `track-switch-btn ${track === 'work' ? 'active' : ''}`;
+      document.getElementById('btn-track-life').className = `track-switch-btn ${track === 'life' ? 'active' : ''}`;
+      renderEnCards();
+    }
+
+    // 切换西语单词库 Tab
+    function switchWordTab(tabKey) {
+      activeTab = tabKey;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      event?.target?.classList?.add('active');
+
+      const container = document.getElementById('wordbank-container');
+      container.innerHTML = '';
+      const list = wordBank[tabKey] || [];
+      list.forEach(item => {
+        const div = document.createElement('div');
+        div.className = "vocab-item";
+        div.onclick = (e) => {
+          if (!e.target.closest('.star-btn')) speak(item.word, 'es-ES', 0.85);
+        };
+        div.innerHTML = `
+          <div style="display:flex; align-items:center;">
+            <button class="sound-btn">🔊</button>
+            <div>
+              <span class="word-main">${item.word}</span>
+              <span class="word-pinyin">${item.pinyin}</span>
+              <div class="word-zh">${item.zh}</div>
+            </div>
+          </div>
+          <button class="star-btn" onclick="toggleSaveWord('${item.word}', '${item.zh}')">⭐</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderDay(idx) {
+      const data = courseData[idx];
+
+      // 1. 渲染西语
+      document.getElementById('es-theme-title').innerText = `Day ${data.day}：${data.es.theme}`;
+
+      const sentenceBox = document.getElementById('es-sentence-container');
+      sentenceBox.innerHTML = '';
+      data.es.sentences.forEach(item => {
+        const div = document.createElement('div');
+        div.style.cssText = "background:white; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition:all 0.15s;";
+        div.onmouseover = () => { div.style.borderColor = '#f59e0b'; div.style.background = '#fefce8'; };
+        div.onmouseout = () => { div.style.borderColor = '#e2e8f0'; div.style.background = '#ffffff'; };
+        div.onclick = () => speak(item.es, 'es-ES', 0.85);
+        div.innerHTML = `
+          <div style="flex:1; padding-right:10px;">
+            <div style="font-size:13.5px; font-weight:700; color:#0f172a;">${item.es}</div>
+            <div style="font-size:11.5px; color:#475569; margin-top:3px;">${item.zh}</div>
+            <div style="font-size:10px; color:#b45309; margin-top:2px;">💡 场景/要点：${item.note}</div>
+          </div>
+          <span style="font-size:14px; color:#cbd5e1;">🔊</span>
+        `;
+        sentenceBox.appendChild(div);
+      });
+
+      const diaBox = document.getElementById('es-dialogue-box');
+      diaBox.innerHTML = '';
+      data.es.dialogue.forEach(line => {
+        const div = document.createElement('div');
+        div.style.cssText = "display:flex; gap:10px; align-items:flex-start; padding:6px 4px; cursor:pointer; border-radius:6px;";
+        div.onclick = () => speak(line.es, 'es-ES', 0.85);
+        div.innerHTML = `
+          <div style="width:22px; height:22px; border-radius:50%; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; background:${line.speaker === 'A' ? '#fef3c7' : '#e0e7ff'}; color:${line.speaker === 'A' ? '#b45309' : '#4338ca'};">${line.speaker}</div>
+          <div style="flex:1;">
+            <div style="font-size:12.5px; font-weight:600; color:#1e293b;">${line.es}</div>
+            <div style="font-size:11px; color:#64748b;">${line.zh}</div>
+          </div>
+          <span style="font-size:11px; color:#cbd5e1;">🔊</span>
+        `;
+        diaBox.appendChild(div);
+      });
+
+      // 2. 渲染英语
+      document.getElementById('en-theme-title').innerText = `Day ${data.day}：${data.en.theme}`;
+      renderEnCards();
+
+      renderQuiz(data.quiz);
+    }
+
+    function renderEnCards() {
+      const data = courseData[currentDayIdx];
+      const phrases = currentEnTrack === 'work' ? data.en.work : data.en.life;
+      const container = document.getElementById('en-content-container');
+      container.innerHTML = '';
+
+      phrases.forEach((item, i) => {
+        const isDefault = i === 0;
+        if (isDefault) selectedEnglishPhrase = item.en;
+        const div = document.createElement('div');
+        div.className = `en-card ${isDefault ? 'selected' : ''}`;
+        div.id = `en-card-${i}`;
+        div.onclick = () => selectEnPhrase(item.en, i);
+        div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div style="flex:1; padding-right:8px;">
+              <div class="en-text">${item.en}</div>
+              <div class="en-zh">${item.zh}</div>
+              <span class="en-tag" style="background:${item.bg}; color:${item.color};">${item.tag}</span>
+            </div>
+            <button onclick="event.stopPropagation(); speak('${item.en.replace(/'/g, "\\'")}', 'en-US', 1.0)" class="sound-btn" style="margin:0;">🔊</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      document.getElementById('speech-result').innerText = `已选定练习句子，点击麦克风开始跟读...`;
+    }
+
+    function selectEnPhrase(phrase, idx) {
+      selectedEnglishPhrase = phrase;
+      document.querySelectorAll('.en-card').forEach(el => el.classList.remove('selected'));
+      const activeEl = document.getElementById(`en-card-${idx}`);
+      if (activeEl) activeEl.classList.add('selected');
+      document.getElementById('speech-result').innerText = `已选定句子：“${phrase.substring(0, 35)}...”`;
+      document.getElementById('match-score').style.display = 'none';
+      speak(phrase, 'en-US', 1.0);
+    }
+
+    // TTS 朗读 (慢速 0.85x / 常速 1.0x)
+    function speak(text, lang = 'es-ES', rate = 1.0) {
+      if (!('speechSynthesis' in window)) {
+        alert("浏览器暂不支持语音朗读。");
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang;
+      utterance.rate = rate;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // 录音识别与跟读评测 (Shadowing)
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        document.getElementById('mic-status').innerText = "浏览器不支持语音输入识别 (推荐使用 Chrome / Edge)";
+        document.getElementById('record-btn').disabled = true;
+        document.getElementById('record-btn').style.opacity = '0.5';
+        return;
+      }
+      speechRecognition = new SpeechRecognition();
+      speechRecognition.lang = 'en-US';
+      speechRecognition.interimResults = false;
+      speechRecognition.continuous = false;
+
+      speechRecognition.onstart = () => {
+        isRecording = true;
+        document.getElementById('record-btn').classList.add('recording');
+        document.getElementById('mic-status').innerText = "正在倾听，请清晰朗读英文...";
+      };
+
+      speechRecognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('speech-result').innerText = `“${transcript}”`;
+        calculateScore(transcript, selectedEnglishPhrase);
+      };
+
+      speechRecognition.onerror = (e) => {
+        document.getElementById('speech-result').innerText = `未能清晰识别，请重试 (${e.error})`;
+        resetMicUI();
+      };
+
+      speechRecognition.onend = () => { resetMicUI(); };
+    }
+
+    function toggleSpeechRecognition() {
+      if (!speechRecognition) return;
+      if (isRecording) {
+        speechRecognition.stop();
+        resetMicUI();
+      } else {
+        speechRecognition.start();
+      }
+    }
+
+    function resetMicUI() {
+      isRecording = false;
+      document.getElementById('record-btn').classList.remove('recording');
+      document.getElementById('mic-status').innerText = "点击麦克风跟读";
+    }
+
+    function calculateScore(spoken, target) {
+      if (!target) return;
+      const cleanA = spoken.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim().split(/\s+/);
+      const cleanB = target.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim().split(/\s+/);
+      
+      let matches = 0;
+      cleanA.forEach(word => {
+        if (cleanB.includes(word)) matches++;
+      });
+      const ratio = Math.min(100, Math.round((matches / Math.max(cleanA.length, cleanB.length)) * 100));
+      
+      const scoreBox = document.getElementById('match-score');
+      const val = document.getElementById('score-val');
+      scoreBox.style.display = 'block';
+      val.innerText = `${ratio}%`;
+      val.style.color = ratio >= 75 ? '#10b981' : (ratio >= 45 ? '#f59e0b' : '#ef4444');
+    }
+
+    // 随堂测验逻辑
+    function renderQuiz(quiz) {
+      document.getElementById('quiz-question').innerText = quiz.q;
+      const optBox = document.getElementById('quiz-options');
+      const feedBox = document.getElementById('quiz-feedback');
+      optBox.innerHTML = '';
+      feedBox.style.display = 'none';
+
+      quiz.options.forEach((opt) => {
+        const btn = document.createElement('button');
+        btn.className = "quiz-btn";
+        btn.innerText = opt.text;
+        btn.onclick = () => {
+          if (opt.correct) {
+            btn.className = "quiz-btn correct";
+            feedBox.style.display = 'block';
+            feedBox.style.background = '#ecfdf5';
+            feedBox.style.border = '1px solid #a7f3d0';
+            feedBox.style.color = '#065f46';
+            feedBox.innerHTML = `<strong>回答正确！</strong> ${opt.expl}`;
+            markStreakDone();
+          } else {
+            btn.className = "quiz-btn wrong";
+            feedBox.style.display = 'block';
+            feedBox.style.background = '#fef2f2';
+            feedBox.style.border = '1px solid #fecaca';
+            feedBox.style.color = '#991b1b';
+            feedBox.innerHTML = `<strong>解析：</strong> ${opt.expl}`;
+          }
+        };
+        optBox.appendChild(btn);
+      });
+    }
+
+    // 收藏本存储 (LocalStorage)
+    function getNotebook() {
+      return JSON.parse(localStorage.getItem('bilingual_stash') || '[]');
+    }
+
+    function toggleSaveWord(word, zh) {
+      let list = getNotebook();
+      const existing = list.findIndex(item => item.word === word);
+      if (existing >= 0) {
+        list.splice(existing, 1);
+      } else {
+        list.push({ word, zh });
+      }
+      localStorage.setItem('bilingual_stash', JSON.stringify(list));
+      renderNotebook();
+    }
+
+    function renderNotebook() {
+      const list = getNotebook();
+      const container = document.getElementById('notebook-list');
+      if (list.length === 0) {
+        container.innerHTML = `<div style="font-size:12px; color:#94a3b8; text-align:center; padding:16px 0;">点击词条旁的 ⭐ 即可收藏到这里</div>`;
+        return;
+      }
+      container.innerHTML = '';
+      list.forEach(item => {
+        const div = document.createElement('div');
+        div.className = "stash-item";
+        div.innerHTML = `
+          <div>
+            <strong style="color:#0f172a; cursor:pointer;" onclick="speak('${item.word}', 'es-ES')">${item.word}</strong>
+            <span style="color:#64748b; font-size:11px; margin-left:4px;">${item.zh}</span>
+          </div>
+          <button onclick="toggleSaveWord('${item.word}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">✕</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function clearNotebook() {
+      if (confirm("确定要清空收藏本吗？")) {
+        localStorage.removeItem('bilingual_stash');
+        renderNotebook();
+      }
+    }
+
+    function loadSavedStreak() {
+      const streak = localStorage.getItem('bilingual_streak') || '1';
+      document.getElementById('streak-count').innerText = `已连续打卡 ${streak} 天`;
+    }
+
+    function markStreakDone() {
+      let streak = parseInt(localStorage.getItem('bilingual_streak') || '1');
+      localStorage.setItem('bilingual_streak', (streak + 1).toString());
+      loadSavedStreak();
+    }
+  </script>
+</body>
+</html>
