@@ -4,35 +4,432 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bilingual Daily Coach - 实用职场英语 & 零基础西语</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-    body { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    /* 基础复位与现代系统无衬线字体，无需外网下载 */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 顶部导航 */
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 16px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f59e0b, #4f46e5);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .brand-title { font-size: 16px; font-weight: 700; color: #0f172a; }
+    .brand-subtitle { font-size: 11px; color: #64748b; }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .streak-badge {
+      background: #fef3c7;
+      color: #b45309;
+      border: 1px solid #fde68a;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .day-select {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #334155;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* 布局容器 */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px;
+      flex: 1;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    @media (min-width: 900px) {
+      main {
+        grid-template-columns: 7fr 4fr;
+      }
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      margin-bottom: 24px;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #f1f5f9;
+      margin-bottom: 16px;
+    }
+    .tag {
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .tag-amber { background: #f59e0b; color: #ffffff; }
+    .tag-indigo { background: #4f46e5; color: #ffffff; }
+    .tag-sub { background: #fffbeb; color: #b45309; font-size: 11px; padding: 2px 8px; border-radius: 9999px; }
+
+    /* 西语发音规律盒 */
+    .rule-box {
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .rule-icon {
+      background: #f59e0b;
+      color: white;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .rule-text { font-size: 12px; color: #475569; }
+    .rule-text strong { color: #0f172a; font-size: 13px; display: block; margin-bottom: 2px; }
+
+    /* 词汇网格 */
+    .vocab-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    @media (min-width: 600px) {
+      .vocab-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .vocab-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      cursor: pointer;
+      background: #ffffff;
+      transition: all 0.15s;
+    }
+    .vocab-item:hover {
+      border-color: #f59e0b;
+      background: #fefce8;
+    }
+    .sound-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      color: #64748b;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-right: 10px;
+    }
+    .vocab-item:hover .sound-btn {
+      background: #f59e0b;
+      color: white;
+    }
+    .word-main { font-size: 13px; font-weight: 700; color: #0f172a; }
+    .word-pinyin { font-size: 11px; color: #d97706; margin-left: 6px; font-family: monospace; }
+    .word-zh { font-size: 11px; color: #64748b; }
+    .star-btn {
+      background: none;
+      border: none;
+      color: #cbd5e1;
+      font-size: 15px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .star-btn:hover { color: #f59e0b; }
+
+    /* 积木与例句 */
+    .lego-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 20px;
+    }
+    .lego-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .lego-badge { background: #e0e7ff; color: #4338ca; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+    .lego-desc { font-size: 11px; color: #64748b; margin-bottom: 10px; }
+    .lego-item {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    .lego-item:hover { border-color: #6366f1; }
+    .lego-es { font-size: 13px; font-weight: 600; color: #0f172a; }
+    .lego-focus { background: #f1f5f9; color: #475569; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+    .lego-zh { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+    /* 对话 */
+    .dialogue-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .dialogue-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 6px 4px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .dialogue-row:hover { background: #f1f5f9; }
+    .speaker-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .sp-a { background: #fef3c7; color: #b45309; }
+    .sp-b { background: #e0e7ff; color: #4338ca; }
+    .dialogue-content { flex: 1; }
+    .dialogue-es { font-size: 12px; font-weight: 600; color: #1e293b; }
+    .dialogue-zh { font-size: 11px; color: #64748b; }
+
+    /* 英语板块 */
+    .en-phrase-card {
+      padding: 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .en-phrase-card.active {
+      border-color: #6366f1;
+      background: #f5f3ff;
+    }
+    .en-phrase-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .en-phrase-text { font-size: 13px; font-weight: 700; color: #0f172a; line-height: 1.4; }
+    .en-phrase-zh { font-size: 12px; color: #64748b; margin-top: 4px; }
+    .en-meta {
+      padding-top: 8px;
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+    .en-meta .alt-text { color: #4f46e5; font-weight: 500; }
+
+    /* 跟读评测 */
+    .shadow-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 16px;
+    }
+    .shadow-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .mic-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .mic-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #4f46e5;
+      color: white;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .mic-btn.recording { background: #ef4444; }
+    .mic-output {
+      flex: 1;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #64748b;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+    }
+    .score-display {
+      text-align: right;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    /* 右侧卡片小部件 */
+    .quiz-opt-btn {
+      width: 100%;
+      text-align: left;
+      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      font-size: 12px;
+      cursor: pointer;
+      margin-bottom: 8px;
+      transition: all 0.15s;
+    }
+    .quiz-opt-btn:hover { background: #f8fafc; border-color: #6366f1; }
+    .quiz-opt-btn.correct { background: #ecfdf5; border-color: #10b981; color: #065f46; font-weight: 600; }
+    .quiz-opt-btn.wrong { background: #fef2f2; border-color: #f87171; color: #991b1b; }
+    .quiz-feedback {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      display: none;
+    }
+
+    .stash-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+
+    .tips-card {
+      background: #0f172a;
+      color: #f8fafc;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 12px;
+    }
+    .tips-title { color: #fbbf24; font-weight: 700; margin-bottom: 8px; }
+    .tips-list { list-style: none; }
+    .tips-list li { margin-bottom: 6px; font-size: 11px; color: #cbd5e1; line-height: 1.4; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+<body>
 
-  <!-- 顶部导航栏 -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
-          <i class="fa-solid fa-graduation-cap"></i>
-        </div>
+  <!-- 顶部导航 -->
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">文</div>
         <div>
-          <h1 class="text-base font-bold text-slate-900 leading-tight">每日双语小练 · 专属工作台</h1>
-          <p class="text-xs text-slate-500">西语零基础极简开口 · 职场高频实用地道英语</p>
+          <div class="brand-title">每日双语小练 · 极速工作台</div>
+          <div class="brand-subtitle">西语零基础极简开口 · 职场高频实用地道英语</div>
         </div>
       </div>
-
-      <!-- 打卡天数与天数选择 -->
-      <div class="flex items-center space-x-3">
-        <div class="flex items-center space-x-1.5 bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold border border-amber-200">
-          <i class="fa-solid fa-fire text-amber-500"></i>
+      <div class="header-right">
+        <div class="streak-badge">
+          <span>🔥</span>
           <span id="streak-count">打卡 1 天</span>
         </div>
-        <select id="day-selector" class="text-xs bg-slate-100 border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <select id="day-selector" class="day-select">
           <option value="0">Day 1: 会议对齐进度 & 礼貌生存词</option>
           <option value="1">Day 2: 礼貌提出异议 & 万能 Quiero</option>
           <option value="2">Day 3: 跨部门催办 & 万能 ¿Dónde está?</option>
@@ -43,165 +440,115 @@
     </div>
   </header>
 
-  <!-- 主内容区 -->
-  <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-    <!-- 左侧 8 列：西语零基础 + 英语职场实战 -->
-    <div class="lg:col-span-8 space-y-6">
-
-      <!-- 1. 西语零基础模块 -->
-      <section class="bg-white rounded-2xl border border-amber-200/80 p-5 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-amber-100/40 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
-
-        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-          <div class="flex items-center space-x-2.5">
-            <span class="px-2.5 py-1 rounded-md bg-amber-500 text-white font-extrabold text-xs tracking-wider uppercase">西语 · 零基础模块</span>
-            <span id="es-theme-title" class="text-sm font-bold text-slate-800">Day 1：零规则发音与生存高频词</span>
+  <!-- 主体内容 -->
+  <main>
+    <!-- 左侧主课程 -->
+    <div>
+      <!-- 1. 西语零基础 -->
+      <section class="card">
+        <div class="card-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="tag tag-amber">西语 · 零基础</span>
+            <span id="es-theme-title" style="font-weight:700; font-size:14px;"></span>
           </div>
-          <span class="text-xs text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full font-medium">不背变位 · 直接套用</span>
+          <span class="tag-sub">不背变位 · 直接套用</span>
         </div>
 
-        <!-- 极简发音法则 -->
-        <div class="mt-4 p-3.5 bg-amber-50/70 rounded-xl border border-amber-100 flex items-start space-x-3">
-          <div class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center flex-shrink-0 text-xs">
-            <i class="fa-solid fa-lightbulb"></i>
-          </div>
-          <div class="text-xs leading-relaxed text-slate-700">
-            <span class="font-bold text-slate-900" id="es-rule-title">发音规律</span>
-            <p id="es-rule-desc" class="mt-0.5 text-slate-600">加载中...</p>
+        <div class="rule-box">
+          <div class="rule-icon">💡</div>
+          <div class="rule-text">
+            <strong id="es-rule-title"></strong>
+            <span id="es-rule-desc"></span>
           </div>
         </div>
 
-        <!-- 核心词块 -->
-        <div class="mt-5">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-              <i class="fa-solid fa-cubes text-amber-500"></i> 今日核心词块 (点击即可发音)
-            </h3>
-            <span class="text-[11px] text-slate-400">慢速读音 (0.85x)</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase;">核心词块 (点击直接发音)</span>
+          <span style="font-size:11px; color:#94a3b8;">慢速 0.85x</span>
+        </div>
+        <div id="es-vocab-container" class="vocab-grid"></div>
+
+        <div class="lego-box">
+          <div class="lego-header">
+            <span style="font-size:12px; font-weight:700; color:#334155;">万能句型积木</span>
+            <span id="lego-tag" class="lego-badge"></span>
           </div>
-          <div id="es-vocab-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <!-- 动态生成 -->
-          </div>
+          <div id="lego-instruction" class="lego-desc"></div>
+          <div id="es-sentence-container"></div>
         </div>
 
-        <!-- 万能句型积木 -->
-        <div class="mt-6 bg-slate-50 rounded-xl p-4 border border-slate-200">
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
-              <i class="fa-solid fa-puzzle-piece text-indigo-500"></i> 万能句型积木
-            </h3>
-            <span id="lego-tag" class="text-[11px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">万能开头</span>
-          </div>
-          <p id="lego-instruction" class="text-xs text-slate-500 mb-3">加载中...</p>
-          <div id="es-sentence-container" class="space-y-2">
-            <!-- 动态生成 -->
-          </div>
-        </div>
-
-        <!-- 极简生存对话 -->
-        <div class="mt-5">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5 flex items-center gap-1.5">
-            <i class="fa-solid fa-comments text-amber-500"></i> 极简生存对话
-          </h3>
-          <div id="es-dialogue-box" class="bg-white border border-slate-200 rounded-xl p-3 space-y-2.5 text-xs">
-            <!-- 动态生成 -->
-          </div>
+        <div style="margin-top:16px;">
+          <span style="font-size:12px; font-weight:700; color:#64748b; display:block; margin-bottom:8px;">极简生存对话</span>
+          <div id="es-dialogue-box" class="dialogue-box"></div>
         </div>
       </section>
 
-      <!-- 2. 英语职场实战口语 -->
-      <section class="bg-white rounded-2xl border border-indigo-100 p-5 shadow-sm">
-        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-          <div class="flex items-center space-x-2.5">
-            <span class="px-2.5 py-1 rounded-md bg-indigo-600 text-white font-extrabold text-xs tracking-wider uppercase">英语 · 职场实战</span>
-            <span id="en-theme-title" class="text-sm font-bold text-slate-800">Day 1：会议进度对齐</span>
+      <!-- 2. 英语职场实战 -->
+      <section class="card">
+        <div class="card-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="tag tag-indigo">英语 · 职场实战</span>
+            <span id="en-theme-title" style="font-weight:700; font-size:14px;"></span>
           </div>
-          <span class="text-xs text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full font-medium">中高级地道口语</span>
+          <span class="tag-sub" style="background:#e0e7ff; color:#4338ca;">中高级地道口语</span>
         </div>
 
-        <div class="mt-4 space-y-3" id="en-phrases-container">
-          <!-- 动态生成 -->
-        </div>
+        <div id="en-phrases-container"></div>
 
-        <!-- 口语跟读沙盒 -->
-        <div class="mt-5 bg-gradient-to-r from-indigo-50 to-slate-50 p-4 rounded-xl border border-indigo-100">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <i class="fa-solid fa-microphone-lines text-indigo-600 text-sm"></i>
-              <span class="text-xs font-bold text-slate-800">口语跟读评测 (Shadowing)</span>
-            </div>
-            <span id="mic-status" class="text-[11px] text-slate-400">点击麦克风跟读选中的句子</span>
+        <div class="shadow-box">
+          <div class="shadow-top">
+            <span>口语跟读评测 (Shadowing)</span>
+            <span id="mic-status" style="color:#94a3b8; font-weight:normal; font-size:11px;">点击麦克风跟读选中句子</span>
           </div>
-          <div class="mt-3 flex items-center space-x-3">
-            <button id="record-btn" onclick="toggleSpeechRecognition()" class="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition shadow-md">
-              <i class="fa-solid fa-microphone" id="mic-icon"></i>
-            </button>
-            <div class="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs min-h-[38px] flex items-center text-slate-600" id="speech-result">
-              请点击上方卡片选择要练习的英文句子...
-            </div>
+          <div class="mic-row">
+            <button id="record-btn" class="mic-btn" onclick="toggleSpeechRecognition()">🎤</button>
+            <div class="mic-output" id="speech-result">点击上方卡片选择想要练习的英文句子...</div>
           </div>
-          <div id="match-score" class="mt-2 text-right text-xs font-semibold text-indigo-600 hidden">
-            发音契合度：<span id="score-val">0%</span>
+          <div id="match-score" class="score-display" style="display:none;">
+            契合度得分：<span id="score-val" style="color:#4f46e5; font-size:14px;">0%</span>
           </div>
         </div>
       </section>
-
     </div>
 
-    <!-- 右侧 4 列：随堂测验与生词本 -->
-    <div class="lg:col-span-4 space-y-6">
-
-      <!-- 随堂小测验 -->
-      <section class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-            <i class="fa-solid fa-circle-check text-emerald-500"></i> 今日实战随堂验
-          </h2>
-          <span class="text-[11px] text-slate-400">即答即对</span>
+    <!-- 右侧辅助栏 -->
+    <div>
+      <!-- 随堂小测 -->
+      <section class="card">
+        <div class="card-header">
+          <span style="font-size:12px; font-weight:700; color:#64748b;">今日实战随堂验</span>
+          <span style="font-size:11px; color:#94a3b8;">即答即对</span>
         </div>
-        <div id="quiz-container" class="mt-4">
-          <p id="quiz-question" class="text-xs font-semibold text-slate-800 leading-relaxed mb-3">加载中...</p>
-          <div id="quiz-options" class="space-y-2">
-            <!-- 动态生成 -->
-          </div>
-          <div id="quiz-feedback" class="mt-3 p-2.5 rounded-lg text-xs hidden"></div>
+        <div id="quiz-question" style="font-size:12px; font-weight:600; margin-bottom:12px; color:#1e293b;"></div>
+        <div id="quiz-options"></div>
+        <div id="quiz-feedback" class="quiz-feedback"></div>
+      </section>
+
+      <!-- 生词便签本 -->
+      <section class="card">
+        <div class="card-header">
+          <span style="font-size:12px; font-weight:700; color:#64748b;">随手收藏本</span>
+          <button onclick="clearNotebook()" style="background:none; border:none; font-size:11px; color:#94a3b8; cursor:pointer;">清空</button>
+        </div>
+        <div id="notebook-list" style="max-height:220px; overflow-y:auto;">
+          <div style="font-size:12px; color:#94a3b8; text-align:center; padding:16px 0;">点击词条旁的 ⭐ 即可收藏</div>
         </div>
       </section>
 
-      <!-- 专属生词便签本 -->
-      <section class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-            <i class="fa-solid fa-bookmark text-amber-500"></i> 随手收藏本
-          </h2>
-          <button onclick="clearNotebook()" class="text-[11px] text-slate-400 hover:text-rose-500 transition">清空</button>
-        </div>
-        <div id="notebook-list" class="mt-3 space-y-2 max-h-60 overflow-y-auto pr-1">
-          <p class="text-xs text-slate-400 py-3 text-center">点击词条旁的 ⭐ 即可收藏</p>
-        </div>
-      </section>
-
-      <!-- 零基础极简备忘 -->
-      <section class="bg-slate-900 text-slate-100 rounded-2xl p-4 shadow-md text-xs space-y-2.5">
-        <div class="flex items-center space-x-2 text-amber-400 font-bold">
-          <i class="fa-solid fa-compass"></i>
-          <span>西语零基础开口原则</span>
-        </div>
-        <ul class="space-y-1.5 text-slate-300 text-[11px] leading-relaxed">
+      <!-- 避坑备忘 -->
+      <div class="tips-card">
+        <div class="tips-title">💡 西语零基础开口原则</div>
+        <ul class="tips-list">
           <li>1. <strong>不必顾忌变位</strong>：日常沟通直接用原形动词（如 <em>pagar, comer</em>），对方完全理解。</li>
           <li>2. <strong>万能双保险</strong>：<em>Disculpe</em> 放句首（打扰一下），<em>Por favor</em> 放句尾（请/麻烦）。</li>
           <li>3. <strong>H 永远不发音</strong>：<em>Hola</em> 读“欧拉”，千万不要读成“霍拉”。</li>
         </ul>
-      </section>
-
+      </div>
     </div>
   </main>
 
   <script>
-    // ==========================================
-    // 课程数据表 (实用职场英语 + 零基础西语)
-    // ==========================================
+    // 零依赖课程数据
     const courseData = [
       {
         day: 1,
@@ -211,4 +558,600 @@
           ruleDesc: "西语中 H 是哑音。Hola 读作「欧拉」(不读霍拉)；Hasta luego 读作「阿斯塔-略戈」。五个核心元音 A/E/I/O/U 见字直读，嘴型饱满清脆。",
           vocab: [
             { word: "Hola", pinyin: "[欧拉]", zh: "你好 (最常用问候)" },
-            { word: "Gracias", pinyin:
+            { word: "Gracias", pinyin: "[格拉-思亚斯]", zh: "谢谢" },
+            { word: "Por favor", pinyin: "[波尔-法沃尔]", zh: "请 / 麻烦你 (放句尾超地道)" },
+            { word: "Disculpe", pinyin: "[迪斯科尔佩]", zh: "打扰一下 / 不好意思 (开场必备)" },
+            { word: "Sí / No", pinyin: "[西 / 诺]", zh: "是 / 否" },
+            { word: "Hasta luego", pinyin: "[阿斯塔-略戈]", zh: "回头见 / 待会见" }
+          ],
+          legoPrefix: "万能礼貌开场白",
+          legoDesc: "任何需求前先加 Disculpe，后接 Por favor，即使单词断断续续对方也会非常耐心。",
+          legoExamples: [
+            { es: "Disculpe, una bolsa, por favor.", zh: "不好意思，麻烦给我一个袋子。", focus: "Disculpe + 物品 + por favor" },
+            { es: "La cuenta, por favor.", zh: "麻烦买单 / 结账。", focus: "买单固定搭配" }
+          ],
+          dialogue: [
+            { speaker: "A", es: "¡Hola! Disculpe.", zh: "你好！不好意思打扰一下。" },
+            { speaker: "B", es: "¡Hola! Dígame.", zh: "你好！请讲。" },
+            { speaker: "A", es: "Agua, por favor. Muchas gracias.", zh: "麻烦给我水，非常感谢。" },
+            { speaker: "B", es: "De nada. Hasta luego.", zh: "不客气，回头见。" }
+          ]
+        },
+        en: {
+          theme: "会议对齐与进度同步 (Status & Alignment)",
+          phrases: [
+            { 
+              en: "Could you walk me through where we currently stand on this?", 
+              zh: "你能带我过一遍我们目前这项工作的进展吗？",
+              scenario: "开会想让同事快速同步最新进展时",
+              alt: "Can you give me a quick status update?"
+            },
+            { 
+              en: "Let me double-check this with the team and get back to you by EOD.", 
+              zh: "我和团队再确认一下，今天结束前 (EOD) 给您答复。",
+              scenario: "当下需推迟回复但给出明确截止时间时",
+              alt: "I'll confirm with the team and reply by EOD."
+            },
+            { 
+              en: "Just to ensure we're on the same page, our top priority is finishing the report.", 
+              zh: "确认一下我们理解一致：我们现在的首要任务是先把报告做完。",
+              scenario: "任务繁杂时，帮团队重新聚焦当务之急",
+              alt: "To align our focus, our priority is the report."
+            },
+            { 
+              en: "I have a hard stop at 3 PM, so let's focus on the key blockers.", 
+              zh: "我下午 3 点有个必须离开的硬性安排，所以咱们先聚焦主要卡点。",
+              scenario: "会议时间紧张，提醒大家直奔主题",
+              alt: "I must jump off at 3 PM, so let's discuss blockers first."
+            }
+          ]
+        },
+        quiz: {
+          q: "在超市结账想要一个袋子，最地道且有礼貌的西语表达是？",
+          options: [
+            { text: "Una bolsa, por favor.", correct: true, expl: "正确！'物品 + por favor' 是西语中最实用、绝不出错的礼貌索取方式。" },
+            { text: "Hola bolsa.", correct: false, expl: "不符合日常交际习惯，缺少 por favor（请）。" },
+            { text: "Hasta luego bolsa.", correct: false, expl: "Hasta luego 是道别语（回头见）。" }
+          ]
+        }
+      },
+      {
+        day: 2,
+        es: {
+          theme: "万能句型 Quiero... (我想要)",
+          ruleTitle: "发音规律 2：单颤音 R 舌尖轻弹即可",
+          ruleDesc: "初学者发不出大舌颤音完全没关系！把 R 当作舌尖轻碰上齿龈的清脆弹音即可，西语母语者 100% 听得懂。",
+          vocab: [
+            { word: "Quiero", pinyin: "[切洛]", zh: "我想要... (最核心功能词)" },
+            { word: "Café", pinyin: "[卡费]", zh: "咖啡" },
+            { word: "Agua", pinyin: "[阿瓜]", zh: "水" },
+            { word: "Esto", pinyin: "[埃斯托]", zh: "这个 (指着菜单/实物直接用)" },
+            { word: "Un recibo", pinyin: "[温-雷西沃]", zh: "收据 / 小票" },
+            { word: "Pagar", pinyin: "[帕嘎尔]", zh: "支付 / 付款 (动词原形)" }
+          ],
+          legoPrefix: "Quiero + [物品 / 动词原形]",
+          legoDesc: "学会 Quiero 走遍天下：只要在后面直接加东西名字，或直接加动作原形。",
+          legoExamples: [
+            { es: "Quiero esto, por favor.", zh: "我想要这个，麻烦了。(手指着实物)", focus: "Quiero + 物品" },
+            { es: "Quiero pagar con tarjeta.", zh: "我想刷卡支付。(tarjeta = 卡)", focus: "Quiero + pagar (原形)" }
+          ],
+          dialogue: [
+            { speaker: "A", es: "Buenos días. ¿Qué desea?", zh: "早上好，需要点什么？" },
+            { speaker: "B", es: "Quiero un café y agua, por favor.", zh: "我想要一杯咖啡和水，谢谢。" },
+            { speaker: "A", es: "Muy bien, ¿algo más?", zh: "好的，还要别的吗？" },
+            { speaker: "B", es: "No, solo esto. Quiero pagar.", zh: "不要了，就这些。我想买单。" }
+          ]
+        },
+        en: {
+          theme: "礼貌提出异议与管理预期 (Pushback & Expectations)",
+          phrases: [
+            { 
+              en: "Given our current bandwidth, delivering this by Friday won't be feasible.", 
+              zh: "考虑到我们目前的人手精力 (bandwidth)，周五前交付不太现实。",
+              scenario: "面对不切实际的截止日期，专业且客观地拒绝",
+              alt: "We don't have the capacity to finish this by Friday."
+            },
+            { 
+              en: "I see your point, but here is an alternative we could consider.", 
+              zh: "我明白你的意思，不过我们或许可以考虑另一个替代方案。",
+              scenario: "不同意对方提议时，委婉过渡并提出替代方案",
+              alt: "I understand, but maybe we can try another way."
+            },
+            { 
+              en: "I'd push back on adding more features before the launch.", 
+              zh: "我不太建议在上线前再临时增加新功能。",
+              scenario: "职场常用 push back 表达'有理有据地提出不同意见'",
+              alt: "I advise against adding features right now."
+            }
+          ]
+        },
+        quiz: {
+          q: "开会时想委婉表达“人手和时间精力不够”，最地道的职场英文词是？",
+          options: [
+            { text: "Given our current bandwidth...", correct: true, expl: "正确！bandwidth 原意是带宽，在职场口语中极高频用来指个人或团队的时间与精力容量。" },
+            { text: "We have no brain to do it.", correct: false, expl: "显得粗鲁且业余。" },
+            { text: "I don't like this work.", correct: false, expl: "情绪化且不专业。" }
+          ]
+        }
+      },
+      {
+        day: 3,
+        es: {
+          theme: "万能句型 ¿Dónde está...? (在哪里)",
+          ruleTitle: "发音规律 3：双写 LL 读作 [y/j] 音",
+          ruleDesc: "西语的双写 'll' 不发 L 的音，而是发汉语拼音 'y' 或 'j' 的音。例如：¿Cómo se llama? 读成「科莫-塞-亚玛」。",
+          vocab: [
+            { word: "¿Dónde está...?", pinyin: "[冬代-埃斯塔]", zh: "...在哪里？(问路寻物核心)" },
+            { word: "El baño", pinyin: "[埃尔-巴纽]", zh: "洗手间 / 厕所" },
+            { word: "La salida", pinyin: "[拉-萨利达]", zh: "出口" },
+            { word: "La entrada", pinyin: "[拉-恩特拉达]", zh: "入口" },
+            { word: "Aquí / Allí", pinyin: "[阿基 / 阿伊]", zh: "这里 / 那里" },
+            { word: "Cerca / Lejos", pinyin: "[塞尔卡 / 勒霍斯]", zh: "近 / 远" }
+          ],
+          legoPrefix: "¿Dónde está + [地点/物品]?",
+          legoDesc: "出门在外找地方，只需要套入这个句型，不用任何语法变形。",
+          legoExamples: [
+            { es: "¿Dónde está el baño, por favor?", zh: "请问洗手间在哪里？", focus: "问洗手间最常用" },
+            { es: "¿Dónde está la salida?", zh: "请问出口在哪里？", focus: "问出口" }
+          ],
+          dialogue: [
+            { speaker: "A", es: "Disculpe, ¿dónde está el baño?", zh: "打扰一下，请问洗手间在哪里？" },
+            { speaker: "B", es: "Está allí, a la derecha.", zh: "在那边，往右转。" },
+            { speaker: "A", es: "¡Muchas gracias!", zh: "非常感谢！" },
+            { speaker: "B", es: "De nada, buen día.", zh: "不客气，祝你有美好的一天。" }
+          ]
+        },
+        en: {
+          theme: "跨部门催办与进度跟进 (Follow-up & Bottlenecks)",
+          phrases: [
+            { 
+              en: "I just wanted to touch base and see if there are any updates on this.", 
+              zh: "我就是想跟进一下，看看这件事情目前有没有什么最新进展。",
+              scenario: "日常跨部门催单、跟进进展最温和礼貌的方式 (touch base)",
+              alt: "I'm checking in to see if there is any update."
+            },
+            { 
+              en: "Is there anything blocking you that I can help unblock?", 
+              zh: "目前有什么卡点是我能协助推动或解决的吗？",
+              scenario: "主动帮对方排除卡点 (unblock)，既催办进度又展现支持",
+              alt: "Do you need any help to move this forward?"
+            },
+            { 
+              en: "Let's circle back on this once we receive the final numbers.", 
+              zh: "一旦我们拿到最终数据，再转回头来接着讨论这事。",
+              scenario: "缺少关键数据时，暂缓讨论待后续再议 (circle back)",
+              alt: "Let's discuss this again after getting the numbers."
+            }
+          ]
+        },
+        quiz: {
+          q: "写邮件或发消息催同事进展，最地道且不给对方压迫感的英文短语是？",
+          options: [
+            { text: "I wanted to touch base...", correct: true, expl: "正确！touch base（碰头/跟进）非常温和职业，避免了直白催促的生硬感。" },
+            { text: "Hurry up with the file.", correct: false, expl: "语气过于生硬专横。" },
+            { text: "Do you forget my task?", correct: false, expl: "语法生硬且带有指责意味。" }
+          ]
+        }
+      },
+      {
+        day: 4,
+        es: {
+          theme: "点餐与结账 ¿Cuánto cuesta? (多少钱)",
+          ruleTitle: "发音规律 4：字母 C 的两面派",
+          ruleDesc: "C 遇到 A/O/U 读拼音 [k]（如 Café 卡费）；遇到 E/I 读清脆的 [s]（如 Gracias 格拉-思亚斯）。简单好记！",
+          vocab: [
+            { word: "¿Cuánto cuesta?", pinyin: "[宽托-奎斯塔]", zh: "多少钱？(问价神句)" },
+            { word: "La cuenta", pinyin: "[拉-奎恩塔]", zh: "账单" },
+            { word: "Efectivo", pinyin: "[埃费克提沃]", zh: "现金" },
+            { word: "Tarjeta", pinyin: "[塔尔赫塔]", zh: "银行卡" },
+            { word: "Caro", pinyin: "[卡罗]", zh: "昂贵" },
+            { word: "Barato", pinyin: "[巴拉托]", zh: "便宜" }
+          ],
+          legoPrefix: "¿Cuánto cuesta + [物品]?",
+          legoDesc: "问价格时拿起商品直接问，或者加上指代词 esto (这个)。",
+          legoExamples: [
+            { es: "¿Cuánto cuesta esto?", zh: "这个多少钱？", focus: "万能问价" },
+            { es: "¿Puedo pagar con tarjeta?", zh: "我可以刷卡吗？", focus: "问支付方式 (¿Puedo = 我可以吗)" }
+          ],
+          dialogue: [
+            { speaker: "A", es: "¿Cuánto cuesta esto, por favor?", zh: "请问这个多少钱？" },
+            { speaker: "B", es: "Cuesta diez dólares.", zh: "十美元。" },
+            { speaker: "A", es: "¿Aceptan tarjeta o solo efectivo?", zh: "你们接受刷卡还是只收现金？" },
+            { speaker: "B", es: "Aceptamos tarjeta.", zh: "可以刷卡。" }
+          ]
+        },
+        en: {
+          theme: "预算调整与资源申请 (Budgets & Resources)",
+          phrases: [
+            { 
+              en: "We need to reallocate part of the marketing budget to Q4.", 
+              zh: "我们需要将部分营销预算重新分配至第四季度。",
+              scenario: "汇报资金流动与预算挪动调整 (reallocate budget)",
+              alt: "We need to move some budget to Q4."
+            },
+            { 
+              en: "I've run the numbers, and this adjustment will keep us on target.", 
+              zh: "我已经核算过这些数据了，这次调整能确保我们依然按目标达成。",
+              scenario: "汇报前强调数据已经核算过 (run the numbers)，极具说服力",
+              alt: "I checked the math, and we will hit the target."
+            },
+            { 
+              en: "Could we bring in an additional headcount to support operations?", 
+              zh: "我们能否申请增加一个人员编制 (headcount) 来支持日常运营？",
+              scenario: "职场申请招人/编制时的规范用词 (headcount)",
+              alt: "Can we hire one more person for operations?"
+            }
+          ]
+        },
+        quiz: {
+          q: "用餐完毕想向服务员索要账单买单，最常用的一句话是？",
+          options: [
+            { text: "La cuenta, por favor.", correct: true, expl: "完全正确！La cuenta (账单) + por favor (请)。" },
+            { text: "¿Dónde está la cuenta?", correct: false, expl: "这是问'账单在哪里'，比较生硬。" },
+            { text: "Quiero efectivo.", correct: false, expl: "这是'我想要现金'。" }
+          ]
+        }
+      },
+      {
+        day: 5,
+        es: {
+          theme: "表达需求 ¿Tiene...? (你有...吗)",
+          ruleTitle: "发音规律 5：J 永远发擦音 [h]",
+          ruleDesc: "西语的 J 读起来像汉语拼音的 [h]（但稍带喉部摩擦感）。例如 Tarjeta 读作「塔尔赫塔」，Jugo (果汁) 读作「胡戈」。",
+          vocab: [
+            { word: "¿Tiene...?", pinyin: "[提埃内]", zh: "您有...吗？(问店员核心词)" },
+            { word: "Bolsa", pinyin: "[波尔萨]", zh: "袋子" },
+            { word: "Menú", pinyin: "[梅努]", zh: "菜单" },
+            { word: "Factura", pinyin: "[法克图拉]", zh: "发票 (可用于报销)" },
+            { word: "Wi-Fi", pinyin: "[瓦伊-法伊]", zh: "无线网络" },
+            { word: "La clave", pinyin: "[拉-克拉维]", zh: "密码" }
+          ],
+          legoPrefix: "¿Tiene + [名词]?",
+          legoDesc: "进入任何店铺、酒店或柜台，直接用 ¿Tiene...? 询问对方是否有某样东西。",
+          legoExamples: [
+            { es: "¿Tiene Wi-Fi aquí?", zh: "这里有 Wi-Fi 吗？", focus: "问网络" },
+            { es: "¿Tiene la clave, por favor?", zh: "请问有密码吗？", focus: "问密码" }
+          ],
+          dialogue: [
+            { speaker: "A", es: "Buenas tardes, ¿tiene Wi-Fi?", zh: "下午好，请问这里有无线网吗？" },
+            { speaker: "B", es: "Sí, claro.", zh: "有的，当然。" },
+            { speaker: "A", es: "¿Tiene la clave, por favor?", zh: "请问有密码吗？" },
+            { speaker: "B", es: "La clave está en el recibo.", zh: "密码打印在收据上。" }
+          ]
+        },
+        en: {
+          theme: "突发状况与应急方案 (Contingency & Escalation)",
+          phrases: [
+            { 
+              en: "An unforeseen issue came up, but we've already initiated a fallback plan.", 
+              zh: "出现了一个不可预见的问题，但我们已经启动了后备预案 (fallback plan)。",
+              scenario: "汇报事故时先安抚情绪并直接端出解决方案",
+              alt: "Something unexpected happened, but Plan B is ready."
+            },
+            { 
+              en: "I'll do my best to expedite the clearance process.", 
+              zh: "我会尽全力加快通关/审批流程 (expedite the process)。",
+              scenario: "向各方承诺会加快推进某个缓慢的流程环节",
+              alt: "I will speed up the process as much as possible."
+            },
+            { 
+              en: "Please keep me in the loop regarding any operational changes.", 
+              zh: "后续如果有任何运营变动，请随时让我了解最新情况 (keep me in the loop)。",
+              scenario: "职场极高频短语，意为“随时抄送我/通知我最新动态”",
+              alt: "Please keep me updated on any changes."
+            }
+          ]
+        },
+        quiz: {
+          q: "希望同事后续在项目有变动时随时知会你，最地道的职场口语是？",
+          options: [
+            { text: "Please keep me in the loop.", correct: true, expl: "正确！keep someone in the loop 是商务英语中'随时同步信息给我/让我知情'的黄金搭配。" },
+            { text: "Always send me words.", correct: false, expl: "中式直译，不合母语习惯。" },
+            { text: "Don't forget to talk to me.", correct: false, expl: "过于口语化且略显随意。" }
+          ]
+        }
+      }
+    ];
+
+    let currentDayIdx = 0;
+    let selectedEnglishPhrase = "";
+    let speechRecognition = null;
+    let isRecording = false;
+
+    // 立即执行渲染，不依赖任何外部资源
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSavedStreak();
+      renderDay(0);
+      renderNotebook();
+      initSpeechRecognition();
+    });
+
+    document.getElementById('day-selector').addEventListener('change', (e) => {
+      currentDayIdx = parseInt(e.target.value);
+      renderDay(currentDayIdx);
+    });
+
+    function renderDay(idx) {
+      const data = courseData[idx];
+
+      // 西语
+      document.getElementById('es-theme-title').innerText = `Day ${data.day}：${data.es.theme}`;
+      document.getElementById('es-rule-title').innerText = data.es.ruleTitle;
+      document.getElementById('es-rule-desc').innerText = data.es.ruleDesc;
+      document.getElementById('lego-tag').innerText = data.es.legoPrefix;
+      document.getElementById('lego-instruction').innerText = data.es.legoDesc;
+
+      const vocabBox = document.getElementById('es-vocab-container');
+      vocabBox.innerHTML = '';
+      data.es.vocab.forEach(item => {
+        const div = document.createElement('div');
+        div.className = "vocab-item";
+        div.onclick = (e) => {
+          if (!e.target.closest('.star-btn')) speak(item.word, 'es-ES', 0.85);
+        };
+        div.innerHTML = `
+          <div style="display:flex; align-items:center;">
+            <button class="sound-btn">🔊</button>
+            <div>
+              <span class="word-main">${item.word}</span>
+              <span class="word-pinyin">${item.pinyin}</span>
+              <div class="word-zh">${item.zh}</div>
+            </div>
+          </div>
+          <button class="star-btn" onclick="toggleSaveWord('${item.word}', '${item.zh}')">⭐</button>
+        `;
+        vocabBox.appendChild(div);
+      });
+
+      const legoBox = document.getElementById('es-sentence-container');
+      legoBox.innerHTML = '';
+      data.es.legoExamples.forEach(ex => {
+        const div = document.createElement('div');
+        div.className = "lego-item";
+        div.onclick = () => speak(ex.es, 'es-ES', 0.85);
+        div.innerHTML = `
+          <div>
+            <div>
+              <span class="lego-es">${ex.es}</span>
+              <span class="lego-focus">${ex.focus}</span>
+            </div>
+            <div class="lego-zh">${ex.zh}</div>
+          </div>
+          <span style="font-size:12px; color:#cbd5e1;">🔊</span>
+        `;
+        legoBox.appendChild(div);
+      });
+
+      const diaBox = document.getElementById('es-dialogue-box');
+      diaBox.innerHTML = '';
+      data.es.dialogue.forEach(line => {
+        const div = document.createElement('div');
+        div.className = "dialogue-row";
+        div.onclick = () => speak(line.es, 'es-ES', 0.85);
+        div.innerHTML = `
+          <div class="speaker-avatar ${line.speaker === 'A' ? 'sp-a' : 'sp-b'}">${line.speaker}</div>
+          <div class="dialogue-content">
+            <div class="dialogue-es">${line.es}</div>
+            <div class="dialogue-zh">${line.zh}</div>
+          </div>
+          <span style="font-size:11px; color:#cbd5e1;">🔊</span>
+        `;
+        diaBox.appendChild(div);
+      });
+
+      // 英语
+      document.getElementById('en-theme-title').innerText = `Day ${data.day}：${data.en.theme}`;
+      const enBox = document.getElementById('en-phrases-container');
+      enBox.innerHTML = '';
+      data.en.phrases.forEach((phrase, i) => {
+        const isDefault = i === 0;
+        if (isDefault) selectedEnglishPhrase = phrase.en;
+        const div = document.createElement('div');
+        div.className = `en-phrase-card ${isDefault ? 'active' : ''}`;
+        div.id = `en-phrase-${i}`;
+        div.onclick = () => selectEnglishPhrase(phrase.en, i);
+        div.innerHTML = `
+          <div class="en-phrase-top">
+            <div style="flex:1; padding-right:8px;">
+              <div class="en-phrase-text">${phrase.en}</div>
+              <div class="en-phrase-zh">${phrase.zh}</div>
+            </div>
+            <button onclick="event.stopPropagation(); speak('${phrase.en.replace(/'/g, "\\'")}', 'en-US', 1.0)" class="sound-btn" style="margin:0;">🔊</button>
+          </div>
+          <div class="en-meta">
+            <span>场景：${phrase.scenario}</span>
+            <span class="alt-text">替换：${phrase.alt}</span>
+          </div>
+        `;
+        enBox.appendChild(div);
+      });
+
+      renderQuiz(data.quiz);
+    }
+
+    function selectEnglishPhrase(phrase, idx) {
+      selectedEnglishPhrase = phrase;
+      document.querySelectorAll('.en-phrase-card').forEach(el => el.classList.remove('active'));
+      const activeEl = document.getElementById(`en-phrase-${idx}`);
+      if (activeEl) activeEl.classList.add('active');
+      document.getElementById('speech-result').innerText = `已选定句子，点击麦克风开始跟读...`;
+      document.getElementById('match-score').style.display = 'none';
+    }
+
+    // 原生离线 Web Speech TTS 朗读
+    function speak(text, lang = 'es-ES', rate = 1.0) {
+      if (!('speechSynthesis' in window)) {
+        alert("当前浏览器暂不支持朗读。");
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang;
+      utterance.rate = rate;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // 录音识别跟读
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        document.getElementById('mic-status').innerText = "浏览器不支持语音输入 (推荐 Chrome/Edge)";
+        document.getElementById('record-btn').disabled = true;
+        document.getElementById('record-btn').style.opacity = '0.5';
+        return;
+      }
+      speechRecognition = new SpeechRecognition();
+      speechRecognition.lang = 'en-US';
+      speechRecognition.interimResults = false;
+      speechRecognition.continuous = false;
+
+      speechRecognition.onstart = () => {
+        isRecording = true;
+        document.getElementById('record-btn').classList.add('recording');
+        document.getElementById('mic-status').innerText = "正在倾听，请清晰朗读英文...";
+      };
+
+      speechRecognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('speech-result').innerText = `“${transcript}”`;
+        calculateScore(transcript, selectedEnglishPhrase);
+      };
+
+      speechRecognition.onerror = (e) => {
+        document.getElementById('speech-result').innerText = `未能清晰识别，请重试 (${e.error})`;
+        resetMicUI();
+      };
+
+      speechRecognition.onend = () => {
+        resetMicUI();
+      };
+    }
+
+    function toggleSpeechRecognition() {
+      if (!speechRecognition) return;
+      if (isRecording) {
+        speechRecognition.stop();
+        resetMicUI();
+      } else {
+        speechRecognition.start();
+      }
+    }
+
+    function resetMicUI() {
+      isRecording = false;
+      document.getElementById('record-btn').classList.remove('recording');
+      document.getElementById('mic-status').innerText = "点击麦克风跟读";
+    }
+
+    function calculateScore(spoken, target) {
+      if (!target) return;
+      const cleanA = spoken.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim().split(/\s+/);
+      const cleanB = target.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim().split(/\s+/);
+      
+      let matches = 0;
+      cleanA.forEach(word => {
+        if (cleanB.includes(word)) matches++;
+      });
+      const ratio = Math.min(100, Math.round((matches / Math.max(cleanA.length, cleanB.length)) * 100));
+      
+      const scoreBox = document.getElementById('match-score');
+      const val = document.getElementById('score-val');
+      scoreBox.style.display = 'block';
+      val.innerText = `${ratio}%`;
+      val.style.color = ratio >= 80 ? '#10b981' : (ratio >= 50 ? '#f59e0b' : '#ef4444');
+    }
+
+    // 随堂测验
+    function renderQuiz(quiz) {
+      document.getElementById('quiz-question').innerText = quiz.q;
+      const optBox = document.getElementById('quiz-options');
+      const feedBox = document.getElementById('quiz-feedback');
+      optBox.innerHTML = '';
+      feedBox.style.display = 'none';
+
+      quiz.options.forEach((opt) => {
+        const btn = document.createElement('button');
+        btn.className = "quiz-opt-btn";
+        btn.innerText = opt.text;
+        btn.onclick = () => {
+          if (opt.correct) {
+            btn.className = "quiz-opt-btn correct";
+            feedBox.style.display = 'block';
+            feedBox.style.background = '#ecfdf5';
+            feedBox.style.border = '1px solid #a7f3d0';
+            feedBox.style.color = '#065f46';
+            feedBox.innerHTML = `<strong>回答正确！</strong> ${opt.expl}`;
+            markStreakDone();
+          } else {
+            btn.className = "quiz-opt-btn wrong";
+            feedBox.style.display = 'block';
+            feedBox.style.background = '#fef2f2';
+            feedBox.style.border = '1px solid #fecaca';
+            feedBox.style.color = '#991b1b';
+            feedBox.innerHTML = `<strong>解析：</strong> ${opt.expl}`;
+          }
+        };
+        optBox.appendChild(btn);
+      });
+    }
+
+    // 本地生词本 (LocalStorage)
+    function getNotebook() {
+      return JSON.parse(localStorage.getItem('bilingual_stash') || '[]');
+    }
+
+    function toggleSaveWord(word, zh) {
+      let list = getNotebook();
+      const existing = list.findIndex(item => item.word === word);
+      if (existing >= 0) {
+        list.splice(existing, 1);
+      } else {
+        list.push({ word, zh });
+      }
+      localStorage.setItem('bilingual_stash', JSON.stringify(list));
+      renderNotebook();
+    }
+
+    function renderNotebook() {
+      const list = getNotebook();
+      const container = document.getElementById('notebook-list');
+      if (list.length === 0) {
+        container.innerHTML = `<div style="font-size:12px; color:#94a3b8; text-align:center; padding:16px 0;">点击词条旁的 ⭐ 即可收藏</div>`;
+        return;
+      }
+      container.innerHTML = '';
+      list.forEach(item => {
+        const div = document.createElement('div');
+        div.className = "stash-item";
+        div.innerHTML = `
+          <div>
+            <strong style="color:#0f172a; cursor:pointer;" onclick="speak('${item.word}', 'es-ES')">${item.word}</strong>
+            <span style="color:#64748b; font-size:11px; margin-left:4px;">${item.zh}</span>
+          </div>
+          <button onclick="toggleSaveWord('${item.word}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">✕</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function clearNotebook() {
+      if (confirm("确定要清空收藏本吗？")) {
+        localStorage.removeItem('bilingual_stash');
+        renderNotebook();
+      }
+    }
+
+    // 打卡天数
+    function loadSavedStreak() {
+      const streak = localStorage.getItem('bilingual_streak') || '1';
+      document.getElementById('streak-count').innerText = `已连续打卡 ${streak} 天`;
+    }
+
+    function markStreakDone() {
+      let streak = parseInt(localStorage.getItem('bilingual_streak') || '1');
+      localStorage.setItem('bilingual_streak', (streak + 1).toString());
+      loadSavedStreak();
+    }
+  </script>
+</body>
+</html>
